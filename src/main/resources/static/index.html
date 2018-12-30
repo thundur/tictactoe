@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Tic Tac Toe</title>
+
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script type="text/javascript" src="script.js"></script>
+</head>
+<body>
+
+<h1>Tic Tac Toe</h1>
+
+<p id="error"></p>
+<p id="ok"></p>
+
+<table>
+    <tr>
+        <td><input type="text" class="cell" id="cell0-0" size="1" maxlength="1"></td>
+        <td><input type="text" class="cell" id="cell0-1" size="1" maxlength="1"></td>
+        <td><input type="text" class="cell" id="cell0-2" size="1" maxlength="1"></td>
+    </tr>
+    <tr>
+        <td><input type="text" class="cell" id="cell1-0" size="1" maxlength="1"></td>
+        <td><input type="text" class="cell" id="cell1-1" size="1" maxlength="1"></td>
+        <td><input type="text" class="cell" id="cell1-2" size="1" maxlength="1"></td>
+    </tr>
+    <tr>
+        <td><input type="text" class="cell" id="cell2-0" size="1" maxlength="1"></td>
+        <td><input type="text" class="cell" id="cell2-1" size="1" maxlength="1"></td>
+        <td><input type="text" class="cell" id="cell2-2" size="1" maxlength="1"></td>
+    </tr>
+</table>
+<p>
+    It's player <span id="playerTurn"></span>'s turn
+</p>
+<p>
+    <button id="send" type="button">Send</button>
+    <button id="reset" type="button">Reset</button>
+    <button id="sync" type="button">Sync</button>
+</p>
+
+    <div id="log">
+    </div>
+</body>
+</html>
