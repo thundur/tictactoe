@@ -16,7 +16,7 @@ body {
     display: none;
 }
 
-input {
+input.cell {
     width: 60px;
     height: 60px;
     font-size: 60px;

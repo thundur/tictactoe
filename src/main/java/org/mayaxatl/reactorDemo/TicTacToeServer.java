@@ -7,10 +7,10 @@ import org.springframework.context.annotation.Bean;
 import reactor.core.publisher.EmitterProcessor;
 
 @SpringBootApplication
-public class ReactorDemoApplication {
+public class TicTacToeServer {
 
   public static void main(String[] args) {
-    SpringApplication.run(ReactorDemoApplication.class, args);
+    SpringApplication.run(TicTacToeServer.class, args);
   }
 
   @Bean

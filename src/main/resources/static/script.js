@@ -1,59 +1,127 @@
-var me = 'x';
+let me = 'x';
+let myName = '';
+let currentTurn = '';
+let players = {};
 
-$(document).ready(function() {
-    var source = new EventSource('/tictactoe');
+$(document).ready(() => {
+    let source = new EventSource('/tictactoe');
     source.onmessage = function(event) {
-        $('#log').append($('<div>').text(event.data));
+        log(event.data);
         handleEvent(event);
     };
     source.onerror = function(event) {
         $('#error').append($('<div>').text(event.data));
     };
 
-    $('#send').on('click', function() {
-        var cell = $('input:not(:disabled)').filter(function() {
+    $('#send').on('click', () => {
+        const cell = $('input:not(:disabled)').filter(function() {
             return this.value.toLowerCase() === me;
         });
         if(cell.length === 1) {
-            var matches = cell.attr('id').match(/^cell(\d{1})-(\d{1})$/);
-            var url = '/play/' + matches[1] + '/' + matches[2];
+            const matches = cell.attr('id').match(/^cell(\d)-(\d)$/);
+            const url = `/play/${matches[1]}/${matches[2]}`;
             $.ajax(url, {method: 'GET'});
         }
     });
 
-    $('#sync').on('click', function() {
-        $.ajax('/sync', {
-            method: 'GET',
-            success: function(data) {
-                $('#log').append($('<div>').text(data));
-            }
-        });
+    $('#sync').on('click', () => {
+        synchronize();
     });
 
-    $('#reset').on('click', function() {
+    $('#reset').on('click', () => {
         $.ajax('/restart', { method: 'GET' });
     });
+
+    $('#logon').on('click', () => {
+       logon($('#username').val());
+    });
+
+    synchronize();
 });
 
-var handleEvent = function(event) {
-    var eventData = JSON.parse(event.data);
+const handleEvent = (event) => {
+    const eventData = JSON.parse(event.data);
     switch(eventData.type) {
+        case 'join':
+            players[eventData.player.toLowerCase()] = eventData.name;
+            break;
+        case 'turn':
+            setCurrentTurn(eventData.player.toLowerCase());
+            break;
         case 'move':
-            var el = $('#cell'+ eventData.x +'-'+ eventData.y);
+            const el = $(`#cell${eventData.x}-${eventData.y}`);
             if(el.length) {
                 el.val(eventData.player.toLowerCase());
                 el.prop('disabled', true);
             }
+
             break;
         case 'win':
-            $('input.cell').each(function() {
+            $('input.cell').each(() => {
                 $(this).prop('disabled', true);
             });
             break;
         case 'reset':
-            $('input.cell').each(function() {
-                $(this).val('').prop('disabled', false);
-            });
+            clearAll();
             break;
     }
+};
+
+const logon = (username) => {
+    myName = username;
+    $.ajax('/logon?username='+ username, {
+        method: 'GET',
+        success: synchronize
+    });
+};
+
+const synchronize = () => {
+    $.ajax('/sync', {
+        method: 'GET',
+        success: (data) => {
+            const parts = data.split('\n');
+            for(const i of parts.keys()) {
+                let subparts = parts[i].trim().split(' ');
+                if(subparts.length === 3) {
+                    for(const j of subparts.keys()) {
+                        const cell = $(`#cell${i}-${j}`);
+
+                        switch(subparts[j]) {
+                            case 'EMPTY':
+                                cell.val('');
+                                break;
+                            case 'X':
+                            case 'O':
+                                cell.val(subparts[j].toLowerCase()).prop('disabled', true);
+                                break;
+                        }
+                    }
+                } else if(subparts.length === 1) {
+                    setCurrentTurn(subparts[0].toLowerCase());
+                } else {
+                    log('ERROR: '+ subparts)
+                }
+            }
+        }
+    });
+};
+
+const setCurrentTurn = (player) => {
+    $('#playerTurn').text(player);
+    console.log(player);
+    console.log(players);
+    console.log(players[player]);
+    $('#playerName').text(players[player]);
+    currentTurn = player;
+};
+
+const clearAll = () => {
+    $('input.cell').each(function() {
+        $(this).val('').prop('disabled', false);
+    });
+
+};
+
+const log = (str) => {
+    $('#log').append($('<div>').text(str));
 };

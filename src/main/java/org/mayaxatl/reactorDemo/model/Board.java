@@ -33,9 +33,6 @@ public class Board {
   }
 
   public Optional<Player> hasWinner() {
-    System.out.println("---");
-    System.out.println(getBoard());
-
     Optional<Player> winner = checkDiagonals();
     if(winner.isPresent()) {
       return winner;
@@ -92,8 +89,6 @@ public class Board {
     }
     Player first = diagonal.get(0);
     if(first != Player.EMPTY && allEqual(diagonal)) {
-      System.out.println("diag1");
-      System.out.println(diagonal);
       return Optional.of(first);
     }
 
@@ -103,8 +98,6 @@ public class Board {
     }
     first = diagonal.get(0);
     if(first != Player.EMPTY && allEqual(diagonal)) {
-      System.out.println("diag2");
-      System.out.println(diagonal);
       return Optional.of(first);
     }
     return Optional.empty();
