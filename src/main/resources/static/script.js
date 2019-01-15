@@ -1,5 +1,6 @@
-let me = 'x';
+let me = '';
 let myName = '';
+let myTurn = false;
 let currentTurn = '';
 let players = {};
 
@@ -26,11 +27,13 @@ $(document).ready(() => {
 
     $('button.cell').each((_, button) => {
         $(button).on('click', (event) => {
-            const target = $(event.target);
-            $('button.cell:not(:disabled)').each((_, el) => {
-                $(el).text('');
-            });
-            target.text(currentTurn);
+            if(myTurn) {
+                const target = $(event.target);
+                $('button.cell:not(:disabled)').each((_, el) => {
+                    $(el).text('');
+                });
+                target.text(currentTurn);
+            }
         });
     });
 
@@ -80,7 +83,10 @@ const logon = (username) => {
     myName = username;
     $.ajax('/logon?username='+ username, {
         method: 'GET',
-        success: synchronize
+        success: (text) => {
+            me = text;
+            synchronize();
+        }
     });
 };
 
@@ -119,6 +125,13 @@ const setCurrentTurn = (player) => {
     $('#playerTurn').text(player);
     $('#playerName').text(players[player]);
     currentTurn = player;
+    if (currentTurn === me) {
+        myTurn = true;
+        $('#send').prop('disabled', false);
+    } else {
+        myTurn = false;
+        $('#send').prop('disabled', true);
+    }
 };
 
 const clearAll = () => {

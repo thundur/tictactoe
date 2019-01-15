@@ -36,6 +36,7 @@ public class TicTacToeController {
       if (ticTacToeRepository.isSpotAvailable()) {
         session.setUsername(username);
         ticTacToeRepository.registerPlayer(session);
+        return session.getPlaysWith().name().toLowerCase();
       }
     }
     return "";

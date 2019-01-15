@@ -46,7 +46,7 @@ public class Board {
   }
 
   public boolean isDraw() {
-    return isFull() && hasWinner().isPresent();
+    return isFull() && !hasWinner().isPresent();
   }
 
   private boolean isFull() {
