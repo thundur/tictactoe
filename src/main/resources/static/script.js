@@ -14,14 +14,24 @@ $(document).ready(() => {
     };
 
     $('#send').on('click', () => {
-        const cell = $('input:not(:disabled)').filter(function() {
-            return this.value.toLowerCase() === me;
+        const cell = $('button.cell:not(:disabled)').filter((_, el) => {
+            return $(el).text().toLowerCase() === currentTurn;
         });
         if(cell.length === 1) {
             const matches = cell.attr('id').match(/^cell(\d)-(\d)$/);
             const url = `/play/${matches[1]}/${matches[2]}`;
             $.ajax(url, {method: 'GET'});
         }
+    });
+
+    $('button.cell').each((_, button) => {
+        $(button).on('click', (event) => {
+            const target = $(event.target);
+            $('button.cell:not(:disabled)').each((_, el) => {
+                $(el).text('');
+            });
+            target.text(currentTurn);
+        });
     });
 
     $('#sync').on('click', () => {
@@ -51,13 +61,12 @@ const handleEvent = (event) => {
         case 'move':
             const el = $(`#cell${eventData.x}-${eventData.y}`);
             if(el.length) {
-                el.val(eventData.player.toLowerCase());
+                el.text(eventData.player.toLowerCase());
                 el.prop('disabled', true);
             }
-
             break;
         case 'win':
-            $('input.cell').each(() => {
+            $('button.cell').each(() => {
                 $(this).prop('disabled', true);
             });
             break;
@@ -92,7 +101,7 @@ const synchronize = () => {
                                 break;
                             case 'X':
                             case 'O':
-                                cell.val(subparts[j].toLowerCase()).prop('disabled', true);
+                                cell.text(subparts[j].toLowerCase()).prop('disabled', true);
                                 break;
                         }
                     }
@@ -108,16 +117,13 @@ const synchronize = () => {
 
 const setCurrentTurn = (player) => {
     $('#playerTurn').text(player);
-    console.log(player);
-    console.log(players);
-    console.log(players[player]);
     $('#playerName').text(players[player]);
     currentTurn = player;
 };
 
 const clearAll = () => {
-    $('input.cell').each(function() {
-        $(this).val('').prop('disabled', false);
+    $('button.cell').each(function() {
+        $(this).text('').prop('disabled', false);
     });
 
 };
