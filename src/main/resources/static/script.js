@@ -59,6 +59,14 @@ $(document).ready(() => {
         });
     });
 
+    $('#enableLog').on('change', (event) => {
+        if($(event.target).prop('checked')) {
+            $('#logWrap').show();
+        } else {
+            $('#logWrap').hide();
+        }
+    });
+
     $('#clearLog').on('click', () => {
         $('#log').text('');
     });
@@ -168,5 +176,7 @@ const clearAll = () => {
 };
 
 const log = (str) => {
-    $('#log').append($('<div>').text(str));
+    if($('#logWrap').is(':visible')) {
+        $('#log').append($('<div>').text(str));
+    }
 };

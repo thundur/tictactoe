@@ -42,3 +42,7 @@ td {
     height: 60px;
     padding: 0;
 }
+
+#logWrap {
+    display: none;
+}
