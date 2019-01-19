@@ -120,9 +120,9 @@ public class Board {
         result.append(board.get(i).get(j).name());
         result.append(" ");
       }
-      result.append("\n");
+      result.append("\t");
     }
-    return result.toString();
+    return result.toString().trim();
   }
 
 }

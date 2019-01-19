@@ -6,11 +6,11 @@ let players = {};
 
 $(document).ready(() => {
     let source = new EventSource('/tictactoe');
-    source.onmessage = function(event) {
+    source.onmessage = (event) => {
         log(event.data);
         handleEvent(event);
     };
-    source.onerror = function(event) {
+    source.onerror = (event) => {
         $('#error').append($('<div>').text(event.data));
     };
 
@@ -49,6 +49,20 @@ $(document).ready(() => {
        logon($('#username').val());
     });
 
+    $('#logoff').on('click', () => {
+        $.ajax('/logoff', {
+            method: 'GET',
+            success: () => {
+                me = '';
+                myTurn = false;
+            }
+        });
+    });
+
+    $('#clearLog').on('click', () => {
+        $('#log').text('');
+    });
+
     synchronize();
 });
 
@@ -69,8 +83,8 @@ const handleEvent = (event) => {
             }
             break;
         case 'win':
-            $('button.cell').each(() => {
-                $(this).prop('disabled', true);
+            $('button.cell').each((_, button) => {
+                $(button).prop('disabled', true);
             });
             break;
         case 'reset':
@@ -94,29 +108,42 @@ const synchronize = () => {
     $.ajax('/sync', {
         method: 'GET',
         success: (data) => {
-            const parts = data.split('\n');
-            for(const i of parts.keys()) {
-                let subparts = parts[i].trim().split(' ');
-                if(subparts.length === 3) {
-                    for(const j of subparts.keys()) {
-                        const cell = $(`#cell${i}-${j}`);
+            console.log(data);
+            const lines = data.split('\n');
+            lines.forEach((line) => {
+                const [key, value] = line.split(':');
 
-                        switch(subparts[j]) {
-                            case 'EMPTY':
-                                cell.val('');
-                                break;
-                            case 'X':
-                            case 'O':
-                                cell.text(subparts[j].toLowerCase()).prop('disabled', true);
-                                break;
-                        }
-                    }
-                } else if(subparts.length === 1) {
-                    setCurrentTurn(subparts[0].toLowerCase());
-                } else {
-                    log('ERROR: '+ subparts)
+                switch(key) {
+                    case 'you':
+                        const[symbol, username] = value.split(',');
+                        me = symbol.toLowerCase();
+                        players[symbol.toLowerCase()] = username;
+                        break;
+                    case 'board':
+                        value.trim().split('\t').forEach((row, i) => {
+                            row.trim().split(' ').forEach((column, j) => {
+                                const cell = $(`#cell${i}-${j}`);
+                                switch(column) {
+                                    case 'EMPTY':
+                                        cell.val('');
+                                        break;
+                                    case 'X':
+                                    case 'O':
+                                        cell.text(column.toLowerCase()).prop('disabled', true);
+                                        break;
+                                }
+
+                            });
+                        });
+                        break;
+                    case 'turn':
+                        setCurrentTurn(value.toLowerCase());
+                        break;
+                    default:
+                        log('ERROR: '+ line);
+                        break;
                 }
-            }
+            });
         }
     });
 };
@@ -135,8 +162,8 @@ const setCurrentTurn = (player) => {
 };
 
 const clearAll = () => {
-    $('button.cell').each(function() {
-        $(this).text('').prop('disabled', false);
+    $('button.cell').each((_, button) => {
+        $(button).text('').prop('disabled', false);
     });
 
 };

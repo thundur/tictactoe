@@ -3,6 +3,7 @@ package org.mayaxatl.reactorDemo.repository;
 import org.mayaxatl.reactorDemo.event.DrawEvent;
 import org.mayaxatl.reactorDemo.event.Event;
 import org.mayaxatl.reactorDemo.event.JoinEvent;
+import org.mayaxatl.reactorDemo.event.LeaveEvent;
 import org.mayaxatl.reactorDemo.event.MoveEvent;
 import org.mayaxatl.reactorDemo.event.RestartEvent;
 import org.mayaxatl.reactorDemo.event.TurnEvent;
@@ -21,56 +22,65 @@ import java.util.Map;
 @Repository
 public class TicTacToeRepository {
 
-    private final List<Player> availablePlayers;
-    private final Map<Player, String> players;
-    private int turn = 0;
-    private final Board board;
-    private final EmitterProcessor<Event> eventStream;
+  private final List<Player> availablePlayers;
+  private final Map<Player, String> players;
+  private int turn = 0;
+  private final Board board;
+  private final EmitterProcessor<Event> eventStream;
+  private final Session session;
 
-    @Autowired
-    public TicTacToeRepository (EmitterProcessor<Event> eventStream) {
-        availablePlayers = List.of(Player.X, Player.O);
-        players = new HashMap<>();
-        board = new Board();
-        this.eventStream = eventStream;
+  @Autowired
+  public TicTacToeRepository (EmitterProcessor<Event> eventStream, Session session) {
+    availablePlayers = List.of(Player.X, Player.O);
+    players = new HashMap<>();
+    board = new Board();
+    this.eventStream = eventStream;
+    this.session = session;
+  }
+
+  public void move(int x, int y) {
+    var currentPlayer = availablePlayers.get(turn % 2);
+    if(session.getPlaysWith() == currentPlayer) {
+      board.play(currentPlayer, x, y);
+      eventStream.onNext(new MoveEvent(currentPlayer, x, y));
+
+      if (board.hasWinner().isPresent()) {
+        eventStream.onNext(new WinEvent(board.hasWinner().get()));
+      } else if (board.isDraw()) {
+        eventStream.onNext(new DrawEvent());
+      } else {
+        turn++;
+        eventStream.onNext(new TurnEvent(availablePlayers.get(turn % 2)));
+      }
     }
+  }
 
-    public void move(int x, int y) {
-        Player player = availablePlayers.get(turn % 2);
-        board.play(player, x, y);
-        eventStream.onNext(new MoveEvent(player, x, y));
+  public String getState() {
+    var currentPlayer = availablePlayers.get(turn % 2);
+    return "you:" + session.getPlaysWith().name() + "," + session.getUsername() + "\nboard:" + board.getBoard() + "\nturn:" + currentPlayer.name();
+  }
 
-        if (board.hasWinner().isPresent()) {
-            eventStream.onNext(new WinEvent(board.hasWinner().get()));
-        } else if(board.isDraw()) {
-            eventStream.onNext(new DrawEvent());
-        } else {
-            turn++;
-            eventStream.onNext(new TurnEvent(availablePlayers.get(turn % 2)));
-        }
+  public boolean isSpotAvailable() {
+    return players.size() < 2;
+  }
+
+  public void restart() {
+    board.reset();
+    turn = 0;
+    eventStream.onNext(new RestartEvent());
+  }
+
+  public void registerPlayer(Session session) {
+    if(players.size() < 2) {
+      session.setPlaysWith(availablePlayers.get(players.size()));
+      players.put(session.getPlaysWith(), session.getUsername());
+      eventStream.onNext(new JoinEvent(session.getPlaysWith(), session.getUsername()));
     }
+  }
 
-    public String getState() {
-        var currentPlayer = availablePlayers.get(turn % 2);
-        return board.getBoard() + currentPlayer.name();
-    }
-
-    public boolean isSpotAvailable() {
-        return players.size() < 2;
-    }
-
-    public void restart() {
-        board.reset();
-        turn = 0;
-        eventStream.onNext(new RestartEvent());
-    }
-
-    public void registerPlayer(Session session) {
-        if(players.size() < 2) {
-          session.setPlaysWith(availablePlayers.get(players.size()));
-          players.put(session.getPlaysWith(), session.getUsername());
-          eventStream.onNext(new JoinEvent(session.getPlaysWith(), session.getUsername()));
-        }
-    }
+  public void unregisterPlayer(Session session) {
+    players.remove(session.getPlaysWith());
+    eventStream.onNext(new LeaveEvent(session.getPlaysWith()));
+  }
 
 }

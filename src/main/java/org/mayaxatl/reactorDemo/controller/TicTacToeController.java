@@ -42,14 +42,24 @@ public class TicTacToeController {
     return "";
   }
 
+  @GetMapping("/logoff")
+  public void logoff() {
+    ticTacToeRepository.unregisterPlayer(session);
+    session.clear();
+  }
+
   @GetMapping(value = "/play/{x}/{y}", produces = MediaType.TEXT_PLAIN_VALUE)
   public void play(@PathVariable int x, @PathVariable int y) {
-    ticTacToeRepository.move(x, y);
+    if(session.isPlaying()) {
+      ticTacToeRepository.move(x, y);
+    }
   }
 
   @GetMapping(value = "/restart", produces = MediaType.TEXT_PLAIN_VALUE)
   public void restart() {
-    ticTacToeRepository.restart();
+    if(session.isPlaying()) {
+      ticTacToeRepository.restart();
+    }
   }
 
   @GetMapping(value = "/sync", produces = MediaType.TEXT_PLAIN_VALUE)

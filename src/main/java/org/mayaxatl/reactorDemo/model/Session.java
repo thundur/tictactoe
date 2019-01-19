@@ -28,4 +28,13 @@ public class Session {
   public void setPlaysWith(Player playsWith) {
     this.playsWith = playsWith;
   }
+
+  public boolean isPlaying() {
+    return !username.isEmpty() && playsWith != EMPTY;
+  }
+
+  public void clear() {
+    username = "";
+    playsWith = EMPTY;
+  }
 }
