@@ -1,4 +1,4 @@
-package org.mayaxatl.reactorDemo.event;
+package org.mayaxatl.tictactoe.event;
 
 public class RestartEvent extends Event {
 

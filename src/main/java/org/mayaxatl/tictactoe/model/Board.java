@@ -1,4 +1,4 @@
-package org.mayaxatl.reactorDemo.model;
+package org.mayaxatl.tictactoe.model;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,4 +1,4 @@
-package org.mayaxatl.reactorDemo;
+package org.mayaxatl.tictactoe;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

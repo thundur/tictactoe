@@ -1,8 +1,8 @@
-package org.mayaxatl.reactorDemo.controller;
+package org.mayaxatl.tictactoe.controller;
 
-import org.mayaxatl.reactorDemo.event.Event;
-import org.mayaxatl.reactorDemo.model.Session;
-import org.mayaxatl.reactorDemo.repository.TicTacToeRepository;
+import org.mayaxatl.tictactoe.event.Event;
+import org.mayaxatl.tictactoe.model.Session;
+import org.mayaxatl.tictactoe.repository.TicTacToeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.ServerSentEvent;

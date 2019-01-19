@@ -1,6 +1,6 @@
-package org.mayaxatl.reactorDemo.event;
+package org.mayaxatl.tictactoe.event;
 
-import org.mayaxatl.reactorDemo.model.Player;
+import org.mayaxatl.tictactoe.model.Player;
 
 public class WinEvent extends Event {
 

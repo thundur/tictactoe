@@ -1,10 +1,10 @@
-package org.mayaxatl.reactorDemo.model;
+package org.mayaxatl.tictactoe.model;
 
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.annotation.SessionScope;
 
-import static org.mayaxatl.reactorDemo.model.Player.EMPTY;
+import static org.mayaxatl.tictactoe.model.Player.EMPTY;
 
 @Component
 @SessionScope(proxyMode = ScopedProxyMode.TARGET_CLASS)
