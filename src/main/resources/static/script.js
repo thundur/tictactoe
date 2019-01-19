@@ -108,7 +108,6 @@ const synchronize = () => {
     $.ajax('/sync', {
         method: 'GET',
         success: (data) => {
-            console.log(data);
             const lines = data.split('\n');
             lines.forEach((line) => {
                 const [key, value] = line.split(':');
