@@ -19,6 +19,7 @@ import reactor.core.publisher.EmitterProcessor;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 @Repository
 public class TicTacToeRepository {
@@ -67,8 +68,9 @@ public class TicTacToeRepository {
 
   public void restart() {
     board.reset();
-    turn = 0;
+    turn = new Random().nextInt(2);
     eventStream.onNext(new RestartEvent());
+    eventStream.onNext(new TurnEvent(availablePlayers.get(turn % 2)));
   }
 
   public void registerPlayer(Session session) {
