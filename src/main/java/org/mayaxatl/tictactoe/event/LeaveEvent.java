@@ -12,6 +12,6 @@ public class LeaveEvent extends Event {
   }
 
   public String getPlayer() {
-    return player.name();
+    return player.toString();
   }
 }

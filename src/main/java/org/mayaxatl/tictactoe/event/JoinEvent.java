@@ -14,7 +14,7 @@ public class JoinEvent extends Event {
   }
 
   public String getPlayer() {
-    return player.name();
+    return player.toString();
   }
 
   public String getName() {

@@ -2,6 +2,10 @@ body {
     font-family: sans-serif;
 }
 
+#loginContainer, #gameContainer {
+    display: none;
+}
+
 #error {
     background-color: red;
     color: #eee;

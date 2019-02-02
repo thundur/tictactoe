@@ -12,6 +12,6 @@ public class WinEvent extends Event {
   }
 
   public String getWinner() {
-    return winner.name();
+    return winner.toString();
   }
 }

@@ -11,6 +11,7 @@ import org.mayaxatl.tictactoe.event.WinEvent;
 import org.mayaxatl.tictactoe.model.Board;
 import org.mayaxatl.tictactoe.model.Player;
 import org.mayaxatl.tictactoe.model.Session;
+import org.mayaxatl.tictactoe.model.State;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.EmitterProcessor;
@@ -30,7 +31,7 @@ public class TicTacToeRepository {
   private final Session session;
 
   @Autowired
-  public TicTacToeRepository (EmitterProcessor<Event> eventStream, Session session) {
+  public TicTacToeRepository(EmitterProcessor<Event> eventStream, Session session) {
     availablePlayers = List.of(Player.X, Player.O);
     players = new HashMap<>();
     board = new Board();
@@ -40,7 +41,7 @@ public class TicTacToeRepository {
 
   public void move(int x, int y) {
     var currentPlayer = availablePlayers.get(turn % 2);
-    if(session.getPlaysWith() == currentPlayer) {
+    if (session.getPlaysWith() == currentPlayer) {
       board.play(currentPlayer, x, y);
       eventStream.onNext(new MoveEvent(currentPlayer, x, y));
 
@@ -55,9 +56,9 @@ public class TicTacToeRepository {
     }
   }
 
-  public String getState() {
+  public State getState() {
     var currentPlayer = availablePlayers.get(turn % 2);
-    return "you:" + session.getPlaysWith().name() + "," + session.getUsername() + "\nboard:" + board.getBoard() + "\nturn:" + currentPlayer.name();
+    return new State(players, session.getPlaysWith(), currentPlayer, board.getBoard());
   }
 
   public boolean isSpotAvailable() {
@@ -71,7 +72,7 @@ public class TicTacToeRepository {
   }
 
   public void registerPlayer(Session session) {
-    if(players.size() < 2) {
+    if (players.size() < 2) {
       session.setPlaysWith(availablePlayers.get(players.size()));
       players.put(session.getPlaysWith(), session.getUsername());
       eventStream.onNext(new JoinEvent(session.getPlaysWith(), session.getUsername()));

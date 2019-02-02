@@ -113,16 +113,14 @@ public class Board {
     return true;
   }
 
-  public String getBoard() {
-    StringBuilder result = new StringBuilder();
+  public String[][] getBoard() {
+    String[][] result = new String[3][3];
     for (var i = 0; i < gridSize; i++) {
       for (var j = 0; j < gridSize; j++) {
-        result.append(board.get(i).get(j).name());
-        result.append(" ");
+        result[i][j] = board.get(i).get(j).toString();
       }
-      result.append("\t");
     }
-    return result.toString().trim();
+    return result;
   }
 
 }

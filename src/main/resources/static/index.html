@@ -11,41 +11,48 @@
 </head>
 <body>
 
-<input type="text" id="username" placeholder="username">
-<button type="button" id="logon">Log on</button>
-<button type="button" id="logoff">Log off</button>
-<input type="checkbox" id="enableLog"> <label for="enableLog">Log enabled</label>
-
 <h1>Tic Tac Toe</h1>
 
-<p id="error"></p>
-<p id="ok"></p>
+<div id="loginContainer">
+    <input type="text" id="username" placeholder="username">
+    <button type="button" id="logon">Log on</button>
+</div>
 
-<table>
-    <tr>
-        <td><button type="button" class="cell" id="cell0-0"> </button></td>
-        <td><button type="button" class="cell" id="cell0-1"> </button></td>
-        <td><button type="button" class="cell" id="cell0-2"> </button></td>
-    </tr>
-    <tr>
-        <td><button type="button" class="cell" id="cell1-0"> </button></td>
-        <td><button type="button" class="cell" id="cell1-1"> </button></td>
-        <td><button type="button" class="cell" id="cell1-2"> </button></td>
-    </tr>
-    <tr>
-        <td><button type="button" class="cell" id="cell2-0"> </button></td>
-        <td><button type="button" class="cell" id="cell2-1"> </button></td>
-        <td><button type="button" class="cell" id="cell2-2"> </button></td>
-    </tr>
-</table>
-<p>
-    It's player <span id="playerName"></span>'s (<span id="playerTurn"></span>) turn
-</p>
-<p>
-    <button id="send" type="button">Send</button>
-    <button id="reset" type="button">Reset</button>
-    <button id="sync" type="button">Sync</button>
-</p>
+<div id="gameContainer">
+
+    <p id="error"></p>
+    <p id="ok"></p>
+
+    <table>
+        <tr>
+            <td><button type="button" class="cell" id="cell0-0"> </button></td>
+            <td><button type="button" class="cell" id="cell0-1"> </button></td>
+            <td><button type="button" class="cell" id="cell0-2"> </button></td>
+        </tr>
+        <tr>
+            <td><button type="button" class="cell" id="cell1-0"> </button></td>
+            <td><button type="button" class="cell" id="cell1-1"> </button></td>
+            <td><button type="button" class="cell" id="cell1-2"> </button></td>
+        </tr>
+        <tr>
+            <td><button type="button" class="cell" id="cell2-0"> </button></td>
+            <td><button type="button" class="cell" id="cell2-1"> </button></td>
+            <td><button type="button" class="cell" id="cell2-2"> </button></td>
+        </tr>
+    </table>
+    <p>
+        It's player <span id="playerName"></span>'s (<span id="playerTurn"></span>) turn
+    </p>
+    <p>
+        <button id="send" type="button">Send</button>
+        <button id="reset" type="button">Reset</button>
+        <button id="sync" type="button">Sync</button>
+    </p>
+    <p>
+        <button type="button" id="logoff">Log off</button>
+        <input type="checkbox" id="enableLog"> <label for="enableLog">Log enabled</label>
+    </p>
+</div>
 
 <div id="logWrap">
     <div id="log">
