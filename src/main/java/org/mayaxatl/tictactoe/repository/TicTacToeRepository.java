@@ -1,89 +1,73 @@
 package org.mayaxatl.tictactoe.repository;
 
-import org.mayaxatl.tictactoe.event.DrawEvent;
 import org.mayaxatl.tictactoe.event.Event;
-import org.mayaxatl.tictactoe.event.JoinEvent;
-import org.mayaxatl.tictactoe.event.LeaveEvent;
-import org.mayaxatl.tictactoe.event.MoveEvent;
-import org.mayaxatl.tictactoe.event.RestartEvent;
-import org.mayaxatl.tictactoe.event.TurnEvent;
-import org.mayaxatl.tictactoe.event.WinEvent;
-import org.mayaxatl.tictactoe.model.Board;
-import org.mayaxatl.tictactoe.model.Player;
+import org.mayaxatl.tictactoe.model.Game;
 import org.mayaxatl.tictactoe.model.Session;
 import org.mayaxatl.tictactoe.model.State;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import reactor.core.publisher.EmitterProcessor;
+import reactor.core.publisher.Flux;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Random;
 
 @Repository
 public class TicTacToeRepository {
 
-  private final List<Player> availablePlayers;
-  private final Map<Player, String> players;
-  private int turn = 0;
-  private final Board board;
-  private final EmitterProcessor<Event> eventStream;
-  private final Session session;
+  private final List<Game> games;
 
-  @Autowired
-  public TicTacToeRepository(EmitterProcessor<Event> eventStream, Session session) {
-    availablePlayers = List.of(Player.X, Player.O);
-    players = new HashMap<>();
-    board = new Board();
-    this.eventStream = eventStream;
-    this.session = session;
+  public TicTacToeRepository() {
+    games = new ArrayList<>();
   }
 
-  public void move(int x, int y) {
-    var currentPlayer = availablePlayers.get(turn % 2);
-    if (session.getPlaysWith() == currentPlayer) {
-      board.play(currentPlayer, x, y);
-      eventStream.onNext(new MoveEvent(currentPlayer, x, y));
-
-      if (board.hasWinner().isPresent()) {
-        eventStream.onNext(new WinEvent(board.hasWinner().get()));
-      } else if (board.isDraw()) {
-        eventStream.onNext(new DrawEvent());
-      } else {
-        turn++;
-        eventStream.onNext(new TurnEvent(availablePlayers.get(turn % 2)));
-      }
+  public void move(Session session, int x, int y) {
+    Game game = session.getGame();
+    if (game != null) {
+      game.move(session.getPlaysWith(), x, y);
     }
   }
 
-  public State getState() {
-    var currentPlayer = availablePlayers.get(turn % 2);
-    return new State(players, session.getPlaysWith(), currentPlayer, board.getBoard());
-  }
-
-  public boolean isSpotAvailable() {
-    return players.size() < 2;
-  }
-
-  public void restart() {
-    board.reset();
-    turn = new Random().nextInt(2);
-    eventStream.onNext(new RestartEvent());
-    eventStream.onNext(new TurnEvent(availablePlayers.get(turn % 2)));
-  }
-
-  public void registerPlayer(Session session) {
-    if (players.size() < 2) {
-      session.setPlaysWith(availablePlayers.get(players.size()));
-      players.put(session.getPlaysWith(), session.getUsername());
-      eventStream.onNext(new JoinEvent(session.getPlaysWith(), session.getUsername()));
-    }
+  public void registerPlayer(Session session, String username) {
+    Game game = findGameToJoin();
+    session.setUsername(username);
+    session.setGame(game);
+    game.addPlayer(session);
   }
 
   public void unregisterPlayer(Session session) {
-    players.remove(session.getPlaysWith());
-    eventStream.onNext(new LeaveEvent(session.getPlaysWith()));
+    if (session.getGame().removePlayer(session.getPlaysWith())) {
+      games.remove(session.getGame());
+      session.clear();
+    }
   }
 
+  public void restart(Session session) {
+    if(session.isPlaying()) {
+      session.getGame().restart();
+    }
+  }
+
+  public State getState(Session session) {
+    if(session.isPlaying()) {
+      return session.getGame().getState(session.getPlaysWith());
+    }
+    return null;
+  }
+
+  public Flux<Event> getEventStream(Session session) {
+    if(session.isPlaying()) {
+      return session.getGame().getEventStream();
+    }
+    return null;
+  }
+
+  private Game findGameToJoin() {
+    for (Game game : games) {
+      if (game.canJoin()) {
+        return game;
+      }
+    }
+    Game newGame = new Game();
+    games.add(newGame);
+    return newGame;
+  }
 }
