@@ -12,6 +12,15 @@ public class Session {
 
   private String username = "";
   private Player playsWith = EMPTY;
+  private Game game;
+
+  public void setGame(Game game) {
+    this.game = game;
+  }
+
+  public Game getGame() {
+    return this.game;
+  }
 
   public String getUsername() {
     return username;
@@ -30,11 +39,19 @@ public class Session {
   }
 
   public boolean isPlaying() {
-    return !username.isEmpty() && playsWith != EMPTY;
+    return game != null;
   }
 
   public void clear() {
     username = "";
     playsWith = EMPTY;
+    game = null;
+  }
+
+  public boolean removeSelf() {
+    if(game == null) {
+      return false;
+    }
+    return game.removePlayer(playsWith);
   }
 }
