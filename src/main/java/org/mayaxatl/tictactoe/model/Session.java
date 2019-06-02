@@ -47,4 +47,11 @@ public class Session {
     playsWith = EMPTY;
     game = null;
   }
+
+  public boolean removeSelf() {
+    if(game == null) {
+      return false;
+    }
+    return game.removePlayer(playsWith);
+  }
 }

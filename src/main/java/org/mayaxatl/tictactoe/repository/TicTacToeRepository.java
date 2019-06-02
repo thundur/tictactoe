@@ -4,6 +4,8 @@ import org.mayaxatl.tictactoe.event.Event;
 import org.mayaxatl.tictactoe.model.Game;
 import org.mayaxatl.tictactoe.model.Session;
 import org.mayaxatl.tictactoe.model.State;
+import org.mayaxatl.tictactoe.model.admin.AdminGame;
+import org.mayaxatl.tictactoe.model.admin.AdminGames;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 
@@ -34,27 +36,27 @@ public class TicTacToeRepository {
   }
 
   public void unregisterPlayer(Session session) {
-    if (session.getGame().removePlayer(session.getPlaysWith())) {
+    if (session.removeSelf()) {
       games.remove(session.getGame());
       session.clear();
     }
   }
 
   public void restart(Session session) {
-    if(session.isPlaying()) {
+    if (session.isPlaying()) {
       session.getGame().restart();
     }
   }
 
   public State getState(Session session) {
-    if(session.isPlaying()) {
+    if (session.isPlaying()) {
       return session.getGame().getState(session.getPlaysWith());
     }
     return null;
   }
 
   public Flux<Event> getEventStream(Session session) {
-    if(session.isPlaying()) {
+    if (session.isPlaying()) {
       return session.getGame().getEventStream();
     }
     return null;
@@ -69,5 +71,11 @@ public class TicTacToeRepository {
     Game newGame = new Game();
     games.add(newGame);
     return newGame;
+  }
+
+  public AdminGames getGames() {
+    var adminGames = new AdminGames();
+    games.forEach(game -> adminGames.addGame(new AdminGame(game.getPlayers(), !game.isInactive(), 1)));
+    return adminGames;
   }
 }

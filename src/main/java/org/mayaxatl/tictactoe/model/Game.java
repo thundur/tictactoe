@@ -10,6 +10,7 @@ import org.mayaxatl.tictactoe.event.TurnEvent;
 import org.mayaxatl.tictactoe.event.WinEvent;
 import reactor.core.publisher.EmitterProcessor;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,17 +19,20 @@ import java.util.Random;
 public class Game {
 
   private final List<Player> availablePlayers;
-  private Map<Player, String> players;
-  private Board board;
+  private final Map<Player, String> players;
+  private final Board board;
   private int turn;
-  private EmitterProcessor<Event> eventStream;
+  private final EmitterProcessor<Event> eventStream;
+
+  private Instant lastActivity;
 
   public Game() {
-    players = new HashMap<>();
+    players = new HashMap<>(2);
     board = new Board();
     turn = 0;
     eventStream = EmitterProcessor.create();
     availablePlayers = List.of(Player.X, Player.O);
+    lastActivity = Instant.now();
   }
 
   public boolean canJoin() {
@@ -36,9 +40,10 @@ public class Game {
   }
 
   public void addPlayer(Session session) {
-    if(players.size() < availablePlayers.size()) {
+    if (players.size() < availablePlayers.size()) {
       session.setPlaysWith(availablePlayers.get(players.size()));
       players.put(session.getPlaysWith(), session.getUsername());
+      lastActivity = Instant.now();
       eventStream.onNext(new JoinEvent(session.getPlaysWith(), session.getUsername()));
     }
   }
@@ -49,6 +54,7 @@ public class Game {
       eventStream.onComplete();
       return true;
     } else {
+      lastActivity = Instant.now();
       eventStream.onNext(new LeaveEvent(player));
       return false;
     }
@@ -59,6 +65,7 @@ public class Game {
     if (forPlayer == currentPlayer) {
       board.play(currentPlayer, x, y);
       eventStream.onNext(new MoveEvent(currentPlayer, x, y));
+      lastActivity = Instant.now();
 
       if (board.hasWinner().isPresent()) {
         eventStream.onNext(new WinEvent(board.hasWinner().get()));
@@ -76,14 +83,24 @@ public class Game {
     turn = new Random().nextInt(2);
     eventStream.onNext(new RestartEvent());
     eventStream.onNext(new TurnEvent(availablePlayers.get(turn % 2)));
+    lastActivity = Instant.now();
   }
 
   public State getState(Player forPlayer) {
     var currentPlayer = availablePlayers.get(turn % 2);
+    lastActivity = Instant.now();
     return new State(players, forPlayer, currentPlayer, board.getBoard());
   }
 
   public EmitterProcessor<Event> getEventStream() {
     return eventStream;
+  }
+
+  public boolean isInactive() {
+    return lastActivity.plusSeconds(600).isBefore(Instant.now());
+  }
+
+  public Map<Player, String> getPlayers() {
+    return Map.copyOf(players);
   }
 }

@@ -65,7 +65,7 @@ public class TicTacToeController {
 
   @GetMapping(value = "/tictactoe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
   public Flux<ServerSentEvent> tictactoe() {
-    if(session.isPlaying()) {
+    if (session.isPlaying()) {
       return ticTacToeRepository.getEventStream(session).map(event -> ServerSentEvent.builder(event).build());
     }
     return null;
