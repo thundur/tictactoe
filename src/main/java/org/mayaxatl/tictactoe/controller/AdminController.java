@@ -16,7 +16,7 @@ public class AdminController {
     ticTacToeRepository = repository;
   }
 
-  @GetMapping(value = "/admin", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+  @GetMapping(value = "/admin", produces = MediaType.APPLICATION_JSON_VALUE)
   public AdminGames getGames() {
     return ticTacToeRepository.getGames();
   }

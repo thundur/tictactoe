@@ -1,5 +1,6 @@
 package org.mayaxatl.tictactoe.controller;
 
+import org.mayaxatl.tictactoe.event.Event;
 import org.mayaxatl.tictactoe.model.Session;
 import org.mayaxatl.tictactoe.model.State;
 import org.mayaxatl.tictactoe.repository.TicTacToeRepository;
@@ -28,7 +29,7 @@ public class TicTacToeController {
     this.session = session;
   }
 
-  @GetMapping(value = "/logon", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+  @GetMapping(value = "/logon", produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseBody
   public Map<String, String> logon(@RequestParam("username") String username) {
     if (username != null && !username.isEmpty()) {
@@ -57,14 +58,14 @@ public class TicTacToeController {
     }
   }
 
-  @GetMapping(value = "/sync", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+  @GetMapping(value = "/sync", produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseBody
   public State sync() {
     return ticTacToeRepository.getState(session);
   }
 
   @GetMapping(value = "/tictactoe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-  public Flux<ServerSentEvent> tictactoe() {
+  public Flux<ServerSentEvent<Event>> tictactoe() {
     if (session.isPlaying()) {
       return ticTacToeRepository.getEventStream(session).map(event -> ServerSentEvent.builder(event).build());
     }
