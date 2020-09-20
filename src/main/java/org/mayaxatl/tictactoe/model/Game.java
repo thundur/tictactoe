@@ -67,8 +67,8 @@ public class Game {
       eventStream.onNext(new MoveEvent(currentPlayer, x, y));
       lastActivity = Instant.now();
 
-      if (board.hasWinner().isPresent()) {
-        eventStream.onNext(new WinEvent(board.hasWinner().get()));
+      if (board.getWinner().isPresent()) {
+        eventStream.onNext(new WinEvent(board.getWinner().get()));
       } else if (board.isDraw()) {
         eventStream.onNext(new DrawEvent());
       } else {
@@ -79,7 +79,7 @@ public class Game {
   }
 
   public void restart() {
-    board.reset();
+    board.clear();
     turn = new Random().nextInt(2);
     eventStream.onNext(new RestartEvent());
     eventStream.onNext(new TurnEvent(availablePlayers.get(turn % 2)));

@@ -1,26 +1,27 @@
 package org.mayaxatl.tictactoe.model;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
 public class Board {
 
-  private List<List<Player>> board;
+  private final List<List<Player>> board;
   private final int gridSize = 3;
 
   public Board() {
     board = new ArrayList<>();
     for (var i = 0; i < gridSize; i++) {
       var row = new ArrayList<Player>();
-      for(var j = 0; j < gridSize; j++) {
+      for (var j = 0; j < gridSize; j++) {
         row.add(Player.EMPTY);
       }
       board.add(row);
     }
   }
 
-  public void reset() {
+  public void clear() {
     for (var i = 0; i < gridSize; i++) {
       for (var j = 0; j < gridSize; j++) {
         board.get(i).set(j, Player.EMPTY);
@@ -32,21 +33,21 @@ public class Board {
     board.get(x).set(y, player);
   }
 
-  public Optional<Player> hasWinner() {
+  public Optional<Player> getWinner() {
     Optional<Player> winner = checkDiagonals();
-    if(winner.isPresent()) {
+    if (winner.isPresent()) {
       return winner;
     }
 
-   winner = checkColumns();
-    if(winner.isPresent()) {
+    winner = checkColumns();
+    if (winner.isPresent()) {
       return winner;
     }
     return checkRows();
   }
 
   public boolean isDraw() {
-    return isFull() && !hasWinner().isPresent();
+    return isFull() && getWinner().isEmpty();
   }
 
   private boolean isFull() {
@@ -61,21 +62,15 @@ public class Board {
   }
 
   private Optional<Player> checkRows() {
-    for(List<Player> row : board) {
-      Player first = row.get(0);
-      if(first != Player.EMPTY && allEqual(row)) {
-        return Optional.of(first);
-      }
-    }
-    return Optional.empty();
+    return board.stream().filter(this::allEqual).filter(row -> row.get(0) != Player.EMPTY).flatMap(Collection::stream).findFirst();
   }
 
   private Optional<Player> checkColumns() {
     List<Player> column;
-    for(var col = 0; col < gridSize; col++) {
+    for (var col = 0; col < gridSize; col++) {
       column = List.of(board.get(0).get(col), board.get(1).get(col), board.get(2).get(col));
       Player first = column.get(0);
-      if(first != Player.EMPTY && allEqual(column)) {
+      if (first != Player.EMPTY && allEqual(column)) {
         return Optional.of(first);
       }
     }
@@ -84,20 +79,20 @@ public class Board {
 
   private Optional<Player> checkDiagonals() {
     List<Player> diagonal = new ArrayList<>();
-    for(var i = 0; i < gridSize; i++) {
+    for (var i = 0; i < gridSize; i++) {
       diagonal.add(board.get(i).get(i));
     }
     Player first = diagonal.get(0);
-    if(first != Player.EMPTY && allEqual(diagonal)) {
+    if (first != Player.EMPTY && allEqual(diagonal)) {
       return Optional.of(first);
     }
 
     diagonal.clear();
-    for(var i = 0; i < gridSize; i++) {
+    for (var i = 0; i < gridSize; i++) {
       diagonal.add(board.get(i).get((gridSize - 1) - i));
     }
     first = diagonal.get(0);
-    if(first != Player.EMPTY && allEqual(diagonal)) {
+    if (first != Player.EMPTY && allEqual(diagonal)) {
       return Optional.of(first);
     }
     return Optional.empty();
@@ -105,12 +100,7 @@ public class Board {
 
   private boolean allEqual(List<Player> row) {
     var base = row.get(0);
-    for(var player : row) {
-      if(player != base) {
-        return false;
-      }
-    }
-    return true;
+    return row.stream().noneMatch(player -> player != base);
   }
 
   public String[][] getBoard() {

@@ -63,14 +63,11 @@ public class TicTacToeRepository {
   }
 
   private Game findGameToJoin() {
-    for (Game game : games) {
-      if (game.canJoin()) {
-        return game;
-      }
-    }
-    Game newGame = new Game();
-    games.add(newGame);
-    return newGame;
+    return games.stream().filter(Game::canJoin).findFirst().orElseGet(() -> {
+      Game newGame = new Game();
+      games.add(newGame);
+      return newGame;
+    });
   }
 
   public AdminGames getGames() {
