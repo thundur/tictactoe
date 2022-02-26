@@ -4,7 +4,7 @@ import org.mayaxatl.tictactoe.model.Player;
 
 public class LeaveEvent extends Event {
 
-  private Player player;
+  private final Player player;
 
   public LeaveEvent(Player player) {
     super("leave");

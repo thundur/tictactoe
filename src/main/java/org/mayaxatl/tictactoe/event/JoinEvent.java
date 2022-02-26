@@ -4,8 +4,8 @@ import org.mayaxatl.tictactoe.model.Player;
 
 public class JoinEvent extends Event {
 
-  private Player player;
-  private String name;
+  private final Player player;
+  private final String name;
 
   public JoinEvent(Player player, String name) {
     super("join");

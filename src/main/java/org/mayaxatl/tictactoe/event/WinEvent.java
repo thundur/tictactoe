@@ -4,7 +4,7 @@ import org.mayaxatl.tictactoe.model.Player;
 
 public class WinEvent extends Event {
 
-  private Player winner;
+  private final Player winner;
 
   public WinEvent(Player winner) {
     super("win");

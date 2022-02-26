@@ -4,9 +4,9 @@ import org.mayaxatl.tictactoe.model.Player;
 
 public class MoveEvent extends Event {
 
-  private Integer x;
-  private Integer y;
-  private Player player;
+  private final Integer x;
+  private final Integer y;
+  private final Player player;
 
   public MoveEvent(Player player, int x, int y) {
     super("move");

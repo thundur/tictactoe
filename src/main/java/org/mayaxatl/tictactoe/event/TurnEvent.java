@@ -4,7 +4,7 @@ import org.mayaxatl.tictactoe.model.Player;
 
 public class TurnEvent extends Event {
 
-  private Player player;
+  private final Player player;
 
   public TurnEvent(Player player) {
     super("turn");

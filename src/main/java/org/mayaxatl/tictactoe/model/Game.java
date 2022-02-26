@@ -8,7 +8,7 @@ import org.mayaxatl.tictactoe.event.MoveEvent;
 import org.mayaxatl.tictactoe.event.RestartEvent;
 import org.mayaxatl.tictactoe.event.TurnEvent;
 import org.mayaxatl.tictactoe.event.WinEvent;
-import reactor.core.publisher.EmitterProcessor;
+import reactor.core.publisher.Sinks;
 
 import java.time.Instant;
 import java.util.HashMap;
@@ -22,7 +22,7 @@ public class Game {
   private final Map<Player, String> players;
   private final Board board;
   private int turn;
-  private final EmitterProcessor<Event> eventStream;
+  private final Sinks.Many<Event> eventStream;
 
   private Instant lastActivity;
 
@@ -30,7 +30,7 @@ public class Game {
     players = new HashMap<>(2);
     board = new Board();
     turn = 0;
-    eventStream = EmitterProcessor.create();
+    eventStream = Sinks.many().multicast().onBackpressureBuffer();
     availablePlayers = List.of(Player.X, Player.O);
     lastActivity = Instant.now();
   }
@@ -44,18 +44,18 @@ public class Game {
       session.setPlaysWith(availablePlayers.get(players.size()));
       players.put(session.getPlaysWith(), session.getUsername());
       lastActivity = Instant.now();
-      eventStream.onNext(new JoinEvent(session.getPlaysWith(), session.getUsername()));
+      eventStream.tryEmitNext(new JoinEvent(session.getPlaysWith(), session.getUsername()));
     }
   }
 
   public boolean removePlayer(Player player) {
     players.remove(player);
     if (players.size() == 0) {
-      eventStream.onComplete();
+      eventStream.tryEmitComplete();
       return true;
     } else {
       lastActivity = Instant.now();
-      eventStream.onNext(new LeaveEvent(player));
+      eventStream.tryEmitNext(new LeaveEvent(player));
       return false;
     }
   }
@@ -64,16 +64,16 @@ public class Game {
     var currentPlayer = availablePlayers.get(turn % 2);
     if (forPlayer == currentPlayer) {
       board.play(currentPlayer, x, y);
-      eventStream.onNext(new MoveEvent(currentPlayer, x, y));
+      eventStream.tryEmitNext(new MoveEvent(currentPlayer, x, y));
       lastActivity = Instant.now();
 
       if (board.getWinner().isPresent()) {
-        eventStream.onNext(new WinEvent(board.getWinner().get()));
+        eventStream.tryEmitNext(new WinEvent(board.getWinner().get()));
       } else if (board.isDraw()) {
-        eventStream.onNext(new DrawEvent());
+        eventStream.tryEmitNext(new DrawEvent());
       } else {
         turn++;
-        eventStream.onNext(new TurnEvent(availablePlayers.get(turn % 2)));
+        eventStream.tryEmitNext(new TurnEvent(availablePlayers.get(turn % 2)));
       }
     }
   }
@@ -81,8 +81,8 @@ public class Game {
   public void restart() {
     board.clear();
     turn = new Random().nextInt(2);
-    eventStream.onNext(new RestartEvent());
-    eventStream.onNext(new TurnEvent(availablePlayers.get(turn % 2)));
+    eventStream.tryEmitNext(new RestartEvent());
+    eventStream.tryEmitNext(new TurnEvent(availablePlayers.get(turn % 2)));
     lastActivity = Instant.now();
   }
 
@@ -92,7 +92,7 @@ public class Game {
     return new State(players, forPlayer, currentPlayer, board.getBoard());
   }
 
-  public EmitterProcessor<Event> getEventStream() {
+  public Sinks.Many<Event> getEventStream() {
     return eventStream;
   }
 

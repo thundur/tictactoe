@@ -57,7 +57,7 @@ public class TicTacToeRepository {
 
   public Flux<Event> getEventStream(Session session) {
     if (session.isPlaying()) {
-      return session.getGame().getEventStream();
+      return session.getGame().getEventStream().asFlux();
     }
     return null;
   }
